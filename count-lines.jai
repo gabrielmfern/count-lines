@@ -56,23 +56,27 @@ main :: () {
 
     visit_files(".", true, null, (info:      *File_Visit_Info,
                                   user_data: *void) {
+        if info.is_directory {
+            if array_find(IGNORED_DIRECTORY_NAMES, info.short_name)  info.descend_into_directory = false;
+            return;
+        }
         if ends_with(info.full_name, ".jai") {
             file_contents, success := read_entire_file(info.full_name);
             defer free(file_contents);
             if success {
                 cursor            := 0;
+                depth             := 0;
                 is_inside_comment := false;
                 while true {
                     next_line_break := find_index_from_left(file_contents, "\n", cursor);
                     defer {
-                        if next_line_break == -1 break;
+                        if next_line_break == -1 || next_line_break + 1 == file_contents.count  break;
                         cursor = next_line_break + 1;
                     }
                     line: string     = ---;
                     line.data        = file_contents.data + cursor;
                     line.count       = ifx next_line_break != -1 then next_line_break - cursor else file_contents.count - cursor;
 
-                    depth                            := 0;
                     has_code, has_comment, in_string := false;
                     index                            := 0;
                     while index < line.count {
@@ -114,7 +118,7 @@ main :: () {
                 exit(-1);
             }
         }
-    });
+    }, visit_directories = true);
     line_count_report();
 }
 lines:             u64;
