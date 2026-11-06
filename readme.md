@@ -19,3 +19,18 @@ Lines of blank are lines that don't have code or comments, only spaces and line 
 The program is extremly simple and can be read and understood in a trivial amount of time.
 
 Natural path for this would be to support other languages.
+
+This is slightly slower than the fastest tool I know for this tokei:
+
+```
+PS C:\Users\gabri\programming\editor> hyperfine count-lines tokei
+Benchmark 1: count-lines (48 runs)
+                mean     ±       σ          min     …     max
+  Wall Time     55.1 ms  ±     1.6 ms      53.3 ms  …    61.8 ms
+
+Benchmark 2: tokei (53 runs)
+                mean     ±       σ          min     …     max
+  Wall Time     47.0 ms  ±     1.6 ms      44.5 ms  …    56.0 ms           -14.7%
+```
+
+Mainly because it does slightly less passes in the file's contents, ignores `.gitignore` and processes files in parallel.
